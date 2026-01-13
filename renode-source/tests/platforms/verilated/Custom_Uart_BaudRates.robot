@@ -22,6 +22,7 @@ Create Custom UART Machine
     Execute Command    using sysbus
     Execute Command    mach create
     ${platform}=  Catenate  SEPARATOR=\n
+    ...  """
     ...  cpu: CPU.RiscV32 @ sysbus
     ...  ${SPACE*4}cpuType: "rv32imc_zicsr_zifencei"
     ...  ${SPACE*4}privilegedArchitecture: PrivilegedArchitecture.Priv1_10
@@ -36,6 +37,7 @@ Create Custom UART Machine
     ...
     ...  uart: CoSimulated.CoSimulatedUART @ sysbus <${UART_BASE}, +0x100>
     ...  ${SPACE*4}frequency: ${UART_CLOCK_HZ}
+    ...  """
 
     Execute Command    machine LoadPlatformDescriptionFromString ${platform}
     Execute Command    ${UART} SimulationFilePathLinux @${CURDIR}/../../../Custom_Uart/source/libVuart.so
