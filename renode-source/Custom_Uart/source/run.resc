@@ -1,0 +1,22 @@
+
+using sysbus
+mach create "Custom_Uart"
+
+# Load the platform description (the .repl file)
+machine LoadPlatformDescription @/home/ammara/renode-source/Custom_Uart/source/custom_uart.repl
+
+sysbus LoadELF @/home/ammara/renode-source/Custom_Uart/source/hello.elf
+ 
+sysbus LogPeripheralAccess uart1_ST1
+
+showAnalyzer "uart_log" uart1_ST1 Antmicro.Renode.Analyzers.LoggingUartAnalyzer  
+ 
+machine StartGdbServer 3333
+
+# Create a UART analyzer (for console output)
+showAnalyzer uart1_ST1
+
+start
+
+
+

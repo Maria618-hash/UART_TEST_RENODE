@@ -1,0 +1,16 @@
+# UART translate filter for GTKWave
+# Usage: maps the signal to UART ASCII output
+
+filter_type=translate
+name=uart_decode
+description=UART protocol decoder
+
+translate {
+    bit_time = 8.680e-6;  # for 115200 baud
+    format = ascii;
+    bits = lsbit_first;
+    data_bits = 8;
+    stop_bits = 1;
+    parity = none;
+}
+

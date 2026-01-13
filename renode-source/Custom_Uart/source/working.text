@@ -1,0 +1,47 @@
+source directory = /home/ammara/renode/renode-verilator-integration/samples/Custom_Uart/source  verilator directory = /usr/bin/verilator 
+renode path = /home/ammara/renode 
+cmake file = /home/ammara/renode/renode-verilator-integration/samples/Custom_Uart/source/CMakeLists.txt
+/home/ammara/renode/renode-verilator-integration/cmake/configure-and-verilate.cmake
+
+
+
+make -f Makefile.elf 
+
+
+
+Debugging:
+gdb --args ./Vtop
+run
+backtrace
+list
+
+
+Clear Directory / files:
+rm -rf 
+
+
+Verilator commands:
+cd /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src  
+g++ -fPIC -c buses/wishbone.cpp -I. -I../ -I../../../../Infrastructure/src/Emulator/Cores/renode/include  
+g++ -fPIC -c renode_bus.cpp -I. -I../ -I../../../../Infrastructure/src/Emulator/Cores/renode/include  
+g++ -fPIC -c peripherals/uart.cpp -I. -I../ -I../../../../Infrastructure/src/Emulator/Cores/renode/include
+g++ -fPIC -c buses/bus.cpp -I. -I../ -I../../../../Infrastructure/src/Emulator/Cores/renode/include
+g++ -fPIC -c /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/libs/socket-cpp/Socket/Socket.cpp -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/libs/socket-cpp  
+g++ -fPIC -c /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/libs/socket-cpp/Socket/TCPClient.cpp -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/libs/socket-cpp  
+g++ -fPIC -c communication/socket_channel.cpp -I. -I../ -I../../../../Infrastructure/src/Emulator/Cores/renode/include
+
+
+verilator --cc uart_top.v --exe uart_wrapper.cpp -CFLAGS "-fPIC -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary" -LDFLAGS "-shared" --build -j  
+
+
+cd ~/renode-source/Custom_Uart/source  
+g++ -shared -fPIC -o libVuart.so obj_dir/*.o /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/wishbone.o /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/renode_bus.o /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/uart.o /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/bus.o /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/socket_channel.o /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/Socket.o /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/TCPClient.o
+
+
+
+Save terminal output:
+script log.txt
+exit
+
+
+

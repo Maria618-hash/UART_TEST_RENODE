@@ -1,0 +1,20 @@
+
+
+
+CROSS   = riscv64-unknown-elf
+CC      = $(CROSS)-gcc
+OBJCOPY = $(CROSS)-objcopy
+CFLAGS  = -march=rv32imac -mabi=ilp32 -O2 -ffreestanding -nostdlib -g
+LDFLAGS = -T link.ld -nostdlib -nostartfiles
+
+all: hello.elf hello.bin
+
+hello.elf: startup.s hello_world.c link.ld
+	$(CC) $(CFLAGS) startup.s hello_world.c -o hello.elf $(LDFLAGS)
+
+hello.bin: hello.elf
+	$(OBJCOPY) -O binary hello.elf hello.bin
+
+clean:
+	rm -f hello.elf hello.bin
+

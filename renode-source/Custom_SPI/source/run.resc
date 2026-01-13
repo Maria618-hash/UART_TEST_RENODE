@@ -1,0 +1,18 @@
+# Create and configure the machine  
+using sysbus  
+mach create "Custom_SPI"  
+  
+# Load the platform description  
+machine LoadPlatformDescription @/home/ammara/renode-source/Custom_SPI/source/spi-m.repl  
+  
+# Load the test firmware  
+sysbus LoadELF @/home/ammara/renode-source/Custom_SPI/source/spi-m.elf  
+  
+# Enable peripheral access logging for debugging  
+sysbus LogPeripheralAccess spi_master true
+  
+# Start GDB server for debugging  
+machine StartGdbServer 3333  
+  
+# Start the emulation  
+start

@@ -1,0 +1,20 @@
+
+
+
+CROSS   = riscv64-unknown-elf
+CC      = $(CROSS)-gcc
+OBJCOPY = $(CROSS)-objcopy
+CFLAGS  = -march=rv32imac -mabi=ilp32 -O2 -ffreestanding -nostdlib -g
+LDFLAGS = -T link.ld -nostdlib -nostartfiles
+
+all: spi-m.elf spi-m.bin
+
+spi-m.elf: startup.s spi-m.c link.ld
+	$(CC) $(CFLAGS) startup.s spi-m.c -o spi-m.elf $(LDFLAGS)
+
+spi-m.bin: spi-m.elf
+	$(OBJCOPY) -O binary spi-m.elf spi-m.bin
+
+clean:
+	rm -f spi-m.elf spi-m.bin
+

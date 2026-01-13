@@ -1,0 +1,168 @@
+#include <stdint.h>
+#include <stddef.h> 
+  
+#define SPI_BASE 0x80001100
+#define SPCR     (SPI_BASE + 0x00)
+#define SPSR     (SPI_BASE + 0x01)       //status
+#define SPDR     (SPI_BASE + 0x02)      //write FIFO / read FIFO
+#define SPER     (SPI_BASE + 0x03)      //extension / loopback
+#define SPSS     (SPI_BASE + 0x04)     //slave select
+
+void main() {  
+    *((volatile uint8_t*)SPCR) = 0x40;  // Enable SPI  
+    *((volatile uint8_t*)SPER) = 0x01;  // Enable loopback  
+    *((volatile uint8_t*)SPDR) = 0xAA;  // Write test data  
+      
+    // Add this verification  
+    uint8_t received = *((volatile uint8_t*)SPDR);  
+    if (received == 0xAA) {  
+        // Loopback successful!  
+        while(1) {}  // Halt on success  
+    }  
+}
+
+
+
+
+
+// Copyright (c) 2010-2025 Antmicro  
+// This file is licensed under the MIT License.  
+// Full license text is available in 'LICENSE' file.  
+  
+#include <verilated.h>  
+#include "Vsimple_spi_top.h"  
+  
+#include <bitset>  
+#include <stdio.h>  
+#include <stdlib.h>  
+#include <cstdlib>  
+#include <cstdint>  
+#include <iostream>  
+  
+#if VM_TRACE  
+# include <verilated_fst_c.h>  
+#endif  
+  
+#include "buses/wishbone.h"  
+#include "renode_bus.h"  
+#include "peripherals/spi.h"  
+  
+// -------------------  
+// SPI Clock Settings  
+// -------------------  
+#define SPI_FREQ 40000000
+  
+static SPI* spi = nullptr;  
+static Vsimple_spi_top* top = nullptr;  
+static VerilatedFstC* tfp = nullptr;  
+static uint8_t wb_sel_dummy = 0; 
+vluint64_t main_time = 0;  
+  
+// ===============================  
+//   eval() -- called every cycle  
+// ===============================  
+void eval()  
+{ 
+
+#if VM_TRACE  
+    main_time++;  
+    tfp->dump(main_time);  
+#endif  
+    
+    // Apply loopback at hardware level if enabled  
+    if(spi && spi->loopbackEnabled) {  
+        top->miso_i = top->mosi_o;  
+    }  
+    
+    // Evaluate Verilated design  
+    top->eval();  
+  
+    // Evaluate Renode agent  
+    if(spi)  
+        spi->eval();  
+}  
+  
+// ========================================  
+// Initialize SPI peripheral for Renode use  
+// ========================================  
+SPI* initAgent()  
+{  
+    const int spi_base_addr = 0x80001100;  
+    const int spi_tx_rx_reg = 0x02;   // FIFO register at adr 0b010  
+  
+    if(!top)  
+    {  
+        std::cerr << "Error: Top module is not initialized!" << std::endl;  
+        exit(-1);  
+    }  
+  
+    // SPI object: (mosi, miso, sck, ss)  
+    SPI* s = new SPI(  
+    (uint32_t*)&top->mosi_o,      // Master-out  
+    (uint32_t*)&top->miso_i,      // Master-in  
+    (uint32_t*)&top->sck_o,       // SPI clock  
+    (uint8_t*)&top->ss_o,         // Slave-select array  
+    1,                             // SS width  
+    spi_tx_rx_reg  
+);
+  
+    return s;  
+}  
+  
+// =====================================  
+// Initialize Wishbone bus for Renode  
+// =====================================  
+
+void initBus(RenodeAgent* agent)  
+{  
+    Wishbone* bus = new Wishbone();  
+  
+    bus->wb_clk    = &top->clk_i;  
+    bus->wb_rst    = &top->rst_i;  
+    bus->wb_cyc    = &top->cyc_i;  
+    bus->wb_stb    = &top->stb_i;  
+    bus->wb_we     = &top->we_i;  
+    bus->wb_ack    = &top->ack_o;  
+    bus->wb_addr   = (uint8_t*)&top->adr_i;  
+    bus->wb_rd_dat = (uint8_t*)&top->dat_o;  
+    bus->wb_wr_dat = (uint8_t*)&top->dat_i;  
+    bus->wb_sel    = &wb_sel_dummy;         // 8-bit peripheral → no select lines  
+  
+    bus->addr_lines = 5;             // adr_i[2:0]  
+    bus->granularity = 1;            // 8-bit registers  
+     
+    
+    bus->evaluateModel = &eval;  
+    agent->addBus(bus);  
+}  
+  
+// =====================================  
+// Renode entry point — Init()  
+// =====================================  
+RenodeAgent* Init()  
+{  
+    // Initialize Verilator  
+    const char* argv[] = {nullptr};  
+    Verilated::commandArgs(0, argv);  
+  
+    top = new Vsimple_spi_top();  
+  
+#if VM_TRACE  
+    Verilated::traceEverOn(true);  
+    tfp = new VerilatedFstC;  
+    top->trace(tfp, 1);  
+    tfp->open("/home/ammara/renode-source/Custom_SPI/source/spi-m_trace.fst");  
+#endif  
+  
+    // Init SPI agent  
+    spi = initAgent();  
+    spi->connectNative();   // required by Renode  
+  
+    // Connect Wishbone bus  
+    initBus(spi);  
+  
+    return spi;  
+}
+
+
+

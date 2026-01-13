@@ -1,0 +1,131 @@
+Script started on 2025-11-25 11:30:38+05:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="80" LINES="24"]
+[?2004h]0;ammara@ammara-virtual-machine: ~/renode-source/Custom_Uart/source[01;32mammara@ammara-virtual-machine[00m:[01;34m~/renode-source/Custom_Uart/source[00m$ make
+[?2004lverilator --cc uart_top.v --exe uart_wrapper.cpp \
+	-CFLAGS "-fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include" \
+	-LDFLAGS "-shared -lz" \
+	--trace-fst \
+	--build -j
+make[1]: Entering directory '/home/ammara/renode-source/Custom_Uart/source/obj_dir'
+ccache g++  -I.  -MMD -I/usr/local/share/verilator/include -I/usr/local/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=1 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include   -Os  -c -o uart_wrapper.o ../uart_wrapper.cpp
+ccache g++ -Os  -I.  -MMD -I/usr/local/share/verilator/include -I/usr/local/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=1 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include   -c -o verilated.o /usr/local/share/verilator/include/verilated.cpp
+ccache g++ -Os  -I.  -MMD -I/usr/local/share/verilator/include -I/usr/local/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=1 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include   -c -o verilated_fst_c.o /usr/local/share/verilator/include/verilated_fst_c.cpp
+ccache g++ -Os  -I.  -MMD -I/usr/local/share/verilator/include -I/usr/local/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=1 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include   -c -o verilated_threads.o /usr/local/share/verilator/include/verilated_threads.cpp
+python3 /usr/local/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vuart_top.cpp Vuart_top___024root__0.cpp Vuart_top__Trace__0.cpp Vuart_top__ConstPool_0.cpp Vuart_top___024root__Slow.cpp Vuart_top___024root__0__Slow.cpp Vuart_top__Syms.cpp Vuart_top__Trace__0__Slow.cpp Vuart_top__TraceDecls__0__Slow.cpp > Vuart_top__ALL.cpp
+ccache g++ -Os  -I.  -MMD -I/usr/local/share/verilator/include -I/usr/local/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=1 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include   -c -o Vuart_top__ALL.o Vuart_top__ALL.cpp
+echo "" > Vuart_top__ALL.verilator_deplist.tmp
+g++    uart_wrapper.o verilated.o verilated_fst_c.o verilated_threads.o Vuart_top__ALL.a   -shared -lz -lz  -pthread -lpthread -latomic   -o Vuart_top
+rm Vuart_top__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/home/ammara/renode-source/Custom_Uart/source/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.042 2025-11-02 rev v5.042-51-gd91574507
+- Verilator: Built from 0.079 MB sources in 10 modules, into 0.282 MB in 9 C++ files needing 0.000 MB
+- Verilator: Walltime 0.251 s (elab=0.003, cvt=0.023, bld=0.209); cpu 0.042 s on 0 threads; alloced 35.480 MB
+g++ -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include -c /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/buses/wishbone.cpp -o build/src/buses/wishbone.o
+g++ -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include -c /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/renode_bus.cpp -o build/src/renode_bus.o
+g++ -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include -c /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/peripherals/uart.cpp -o build/src/peripherals/uart.o
+g++ -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include -c /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/buses/bus.cpp -o build/src/buses/bus.o
+g++ -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include -c /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src/communication/socket_channel.cpp -o build/src/communication/socket_channel.o
+g++ -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include -c /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/libs/socket-cpp/Socket/Socket.cpp -o build/libs/socket-cpp/Socket/Socket.o
+g++ -fPIC -DVM_TRACE -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/src -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary -I/home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/../../../../Infrastructure/src/Emulator/Cores/renode/include -c /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary/libs/socket-cpp/Socket/TCPClient.cpp -o build/libs/socket-cpp/Socket/TCPClient.o
+cd /home/ammara/renode-source/Custom_Uart/source && \
+g++ -shared -fPIC -o libVuart.so \
+	obj_dir/*.o \
+	/home/ammara/renode-source/Custom_Uart/source/build/src/buses/wishbone.o /home/ammara/renode-source/Custom_Uart/source/build/src/renode_bus.o /home/ammara/renode-source/Custom_Uart/source/build/src/peripherals/uart.o /home/ammara/renode-source/Custom_Uart/source/build/src/buses/bus.o /home/ammara/renode-source/Custom_Uart/source/build/src/communication/socket_channel.o /home/ammara/renode-source/Custom_Uart/source/build/libs/socket-cpp/Socket/Socket.o /home/ammara/renode-source/Custom_Uart/source/build/libs/socket-cpp/Socket/TCPClient.o \
+	-lz
+[?2004h]0;ammara@ammara-virtual-machine: ~/renode-source/Custom_Uart/source[01;32mammara@ammara-virtual-machine[00m:[01;34m~/renode-source/Custom_Uart/source[00m$ make -f Makefile.elf clean[A]0;ammara@ammara-virtual-machine: ~/renode-source/Custom_Uart/source[01;32mammara@ammara-virtual-machine[00m:[01;34m~/renode-source/Custom_Uart/source[00m$ [C[C[C[C[C[4Pclean
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C-f Makefile.elf clean[K[K[K[K[K
+[?2004lriscv64-unknown-elf-gcc -march=rv32imac -mabi=ilp32 -O2 -ffreestanding -nostdlib -g startup.s hello_world.c -o hello.elf -T link.ld -nostdlib -nostartfiles
+riscv64-unknown-elf-objcopy -O binary hello.elf hello.bin
+[?2004h]0;ammara@ammara-virtual-machine: ~/renode-source/Custom_Uart/source[01;32mammara@ammara-virtual-machine[00m:[01;34m~/renode-source/Custom_Uart/source[00m$ renode run.res c
+[?2004l[?1h=[6n]0;Renode[92m11:30:58.5419 [INFO] Loaded monitor commands from: /opt/renode/scripts/monitor.py
+[39;49m[92m11:30:58.9101 [INFO] Including script(s): /home/ammara/renode-source/Custom_Uart/source/run.resc
+[39;49m[92m11:30:58.9292 [INFO] System bus created.
+[39;49m[92m11:30:59.5505 [INFO] sysbus: Loading block of 0 bytes length at 0x0.
+[39;49m[92m11:30:59.5506 [INFO] sysbus: Loading block of 0 bytes length at 0x0.
+[39;49m[92m11:30:59.5507 [INFO] sysbus: Loading block of 28928 bytes length at 0x0.
+[39;49m[92m11:30:59.5711 [INFO] cpu: Setting PC value to 0x80.
+[39;49m[92m11:30:59.6147 [INFO] Custom_Uart: CPUs: ["Custom_Uart.cpu"] were added to a new GDB server created on port :3333
+[39;49m[92m11:30:59.6148 [INFO] Custom_Uart: GDB server with all CPUs started on port :3333
+[39;49m[92m11:30:59.6416 [INFO] Custom_Uart: Machine started.
+[39;49m[92m11:30:59.6997 [INFO] uart1_ST1: [cpu: 0x2E] WriteByte to 0x4 (unknown), value 0x0
+[39;49m[92m11:30:59.7021 [INFO] uart1_ST1: [cpu: 0x36] WriteByte to 0xC (unknown), value 0x80
+[39;49m[92m11:30:59.7033 [INFO] uart1_ST1: [cpu: 0x3A] ReadByte from 0xC (unknown), returned 0x80
+[39;49m[92m11:30:59.7034 [INFO] uart1_ST1: [cpu: 0x50] WriteByte to 0x0 (unknown), value 0x2B
+[39;49m[92m11:30:59.7036 [INFO] uart1_ST1: [cpu: 0x54] WriteByte to 0x4 (unknown), value 0x0
+[39;49m[92m11:30:59.7037 [INFO] uart1_ST1: [cpu: 0x5A] WriteByte to 0xC (unknown), value 0x3
+[39;49m[92m11:30:59.7046 [INFO] uart1_ST1: [cpu: 0x60] WriteByte to 0x8 (unknown), value 0x7
+[39;49m[92m11:30:59.7047 [INFO] uart1_ST1: [cpu: 0x64] WriteByte to 0x10 (unknown), value 0x0
+[39;49m[92m11:30:59.7047 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x60
+[39;49m[92m11:30:59.7047 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x48
+[39;49m[92m11:30:59.7087 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7089 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x65
+[39;49m[92m11:30:59.7118 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7119 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x6C
+[39;49m[92m11:30:59.7155 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7157 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x6C
+[39;49m[92m11:30:59.7194 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7196 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x6F
+[39;49m[92m11:30:59.7229 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7230 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x20
+[39;49m[92m11:30:59.7258 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7259 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x55
+[39;49m[92m11:30:59.7287 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7289 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x41
+[39;49m[92m11:30:59.7329 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7331 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x52
+[39;49m[92m11:30:59.7360 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7362 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x54
+[39;49m[92m11:30:59.7393 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7395 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x31
+[39;49m[92m11:30:59.7420 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7421 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x2D
+[39;49m[92m11:30:59.7448 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7449 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x53
+[39;49m[92m11:30:59.7480 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7481 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x54
+[39;49m[92m11:30:59.7521 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7522 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x52
+[39;49m[92m11:30:59.7561 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7564 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x49
+[39;49m[92m11:30:59.7581 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7583 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x56
+[39;49m[92m11:30:59.7610 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7612 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x45
+[39;49m[92m11:30:59.7641 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7643 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x2D
+[39;49m[92m11:30:59.7682 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7684 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x49
+[39;49m[92m11:30:59.7711 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7712 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x20
+[39;49m[92m11:30:59.7745 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7747 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x66
+[39;49m[92m11:30:59.7774 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7775 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x72
+[39;49m[92m11:30:59.7805 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7807 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x6F
+[39;49m[92m11:30:59.7844 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7846 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x6D
+[39;49m[92m11:30:59.7872 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7873 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x20
+[39;49m[92m11:30:59.7906 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7907 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x52
+[39;49m[92m11:30:59.7934 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7934 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x65
+[39;49m[92m11:30:59.7961 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.7962 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x6E
+[39;49m[92m11:30:59.7997 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.8000 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x6F
+[39;49m[92m11:30:59.8036 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.8037 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x64
+[39;49m[92m11:30:59.8068 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.8069 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x65
+[39;49m[92m11:30:59.8096 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.8097 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0x21
+[39;49m[92m11:30:59.8125 [INFO] uart1_ST1: [cpu: 0x14] ReadByte from 0x14 (unknown), returned 0x20
+[39;49m[92m11:30:59.8126 [INFO] uart1_ST1: [cpu: 0x1E] WriteByte to 0x0 (unknown), value 0xA
+[39;49m[92m11:30:59.8158 [INFO] uart1_ST1: [host: 0.23s (+0.23s)|virt: 0s (+0s)] Hello UART1-STRIVE-I from Renode!
+[39;49m[92m11:39:46.6730 [INFO] Custom_Uart: Machine paused.
+[39;49m[92m11:39:46.6998 [INFO] Custom_Uart: Disposed.
+[39;49m[?1l>]104[?2004h]0;ammara@ammara-virtual-machine: ~/renode-source/Custom_Uart/source[01;32mammara@ammara-virtual-machine[00m:[01;34m~/renode-source/Custom_Uart/source[00m$ exit
+[?2004lexit
+
+Script done on 2025-11-25 11:40:42+05:00 [COMMAND_EXIT_CODE="0"]
