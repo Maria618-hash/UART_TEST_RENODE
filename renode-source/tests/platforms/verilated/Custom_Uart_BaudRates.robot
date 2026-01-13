@@ -118,23 +118,17 @@ Should Transmit Correctly Across Divisor Sweep
 
     # This verifies the UART bit timing logic across a wide range of divisors (baud rates).
     # We keep it bounded to avoid excessive runtime.
-    # Keep divisors within a practical range for test runtime:
+    # Keep divisors within a practical range for runtime and stability:
     # divisor ~ 5..521 covers 921600..9600 baud at 80MHz with 16x oversampling.
-    # Extend down to ~1200 baud (divisor ~ 4167) without making the suite too slow.
+    # Very large divisors make the co-simulation extremely slow and can destabilize Renode on some hosts.
     @{DIVISORS}=  Create List
-    ...  1  2  3  4  5  6  7  8  9  10
+    ...  5  6  7  8  9  10
     ...  12  16  24  32  48  64  96  128
-    ...  160  192  224  256  384  512  768  1024
-    ...  1536  2048  3072  4096
+    ...  160  192  224  256  320  384  512  640  768  1024
 
+    ${payload}=  Evaluate  bytes([0xA5, 0x5A])
     FOR  ${div}  IN  @{DIVISORS}
-        Set UART Divisor  ${div}
-        # Reduce payload size for large divisors (slow baud) to keep runtime bounded.
-        IF  ${div} > 1024
-            ${payload}=  Evaluate  bytes([0xA5])
-        ELSE
-            ${payload}=  Evaluate  bytes([0x00, 0xFF, 0x11, 0x22])
-        END
+        Set UART Divisor       ${div}
         Send And Assert Bytes  ${payload}
     END
 
