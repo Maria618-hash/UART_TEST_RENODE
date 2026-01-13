@@ -41,13 +41,11 @@ Create Custom UART Machine
     Execute Command    mach create
     Execute Command    machine LoadPlatformDescriptionFromString ${PLATFORM}
     Execute Command    ${UART} SimulationFilePathLinux @${CURDIR}/../../../Custom_Uart/source/libVuart.so
-    Create Terminal Tester  ${UART}
+    # Use binary mode so we can verify exact byte sequences (not line-based text).
+    Create Terminal Tester  ${UART}  binaryMode=true
 
-Set UART Baud
-    [Arguments]    ${baud}
-    # divisor = round(UART_CLOCK_HZ / (OVERSAMPLING * baud))
-    ${den}=        Evaluate    int(${OVERSAMPLING}) * int(${baud})
-    ${div}=        Evaluate    max(1, int((int(${UART_CLOCK_HZ}) + (${den}//2)) // ${den}))
+Set UART Divisor
+    [Arguments]    ${div}
     ${dll}=        Evaluate    int(${div}) & 0xFF
     ${dlh}=        Evaluate    (int(${div}) >> 8) & 0xFF
 
@@ -58,28 +56,61 @@ Set UART Baud
     # 8N1, DLAB=0
     Execute Command  ${UART} WriteByte ${LCR_OFFSET} 0x03
 
-Send And Assert Char
-    [Arguments]    ${ch}
-    # Terminal tester matches on lines - send a newline as well.
-    Execute Command     ${UART} WriteByte ${THR_OFFSET} ${{ord($ch)}}
-    Execute Command     ${UART} WriteByte ${THR_OFFSET} 0x0A
-    Wait For Line On Uart  ${ch}  timeout=2
+Set UART Baud
+    [Arguments]    ${baud}
+    # 16550-style: divisor = round(UART_CLOCK_HZ / (OVERSAMPLING * baud))
+    ${den}=        Evaluate    int(${OVERSAMPLING}) * int(${baud})
+    ${div}=        Evaluate    max(1, int((int(${UART_CLOCK_HZ}) + (${den}//2)) // ${den}))
+    Set UART Divisor  ${div}
+
+Send Bytes
+    [Arguments]    ${bytes}
+    # ${bytes} is a Python bytes object
+    FOR  ${b}  IN  @{{[x for x in $bytes]}}
+        Execute Command  ${UART} WriteByte ${THR_OFFSET} ${b}
+    END
+
+Assert Bytes Received
+    [Arguments]    ${bytes}
+    ${hex}=  Evaluate  $bytes.hex()
+    ${m}=    Wait For Bytes On Uart  ${hex}  matchStart=false  timeout=2
+    Should Be Equal  ${m.Content}  ${bytes}
+
+Send And Assert Bytes
+    [Arguments]    ${bytes}
+    Send Bytes            ${bytes}
+    Assert Bytes Received  ${bytes}
 
 *** Test Cases ***
-Should Transmit Correctly Across Baud Rates
+Should Transmit Correctly Across Standard Baud Rates
     [Tags]    skip_host_arm
     Create Custom UART Machine
     Start Emulation
 
     # Typical baud rates + a couple of higher ones
     @{BAUDS}=  Create List  9600  19200  38400  57600  115200  230400  460800  921600
-
-    # Send one character per baud to ensure the UART agent re-locks after divisor changes.
-    ${i}=  Set Variable  0
+    ${payload}=  Evaluate  bytes([0x55, 0xAA, 0x00, 0xFF, 0x13, 0x37])
     FOR  ${baud}  IN  @{BAUDS}
         Set UART Baud  ${baud}
-        ${ch}=  Evaluate  chr(ord('A') + int($i))
-        Send And Assert Char  ${ch}
-        ${i}=  Evaluate  int($i) + 1
+        Send And Assert Bytes  ${payload}
+    END
+
+Should Transmit Correctly Across Divisor Sweep
+    [Tags]    skip_host_arm
+    Create Custom UART Machine
+    Start Emulation
+
+    # This verifies the UART bit timing logic across a wide range of divisors (baud rates).
+    # We keep it bounded to avoid excessive runtime.
+    @{DIVISORS}=  Create List
+    ...  1  2  3  4  5  6  7  8  9  10
+    ...  12  16  24  32  48  64  96  128
+    ...  160  192  224  256  384  512  768  1024
+    ...  1536  2048  3072  4096  8192  16384  32768  65535
+
+    ${payload}=  Evaluate  bytes([0x00, 0xFF, 0x11, 0x22, 0x33, 0x7E, 0x80, 0xA5, 0x5A])
+    FOR  ${div}  IN  @{DIVISORS}
+        Set UART Divisor  ${div}
+        Send And Assert Bytes  ${payload}
     END
 
