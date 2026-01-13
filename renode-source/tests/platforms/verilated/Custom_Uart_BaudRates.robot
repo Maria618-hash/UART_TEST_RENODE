@@ -29,7 +29,7 @@ Create Custom UART Machine
     ...
     ...  clint: IRQControllers.CoreLevelInterruptor @ sysbus 0x02000000
     ...  ${SPACE*4}frequency: ${UART_CLOCK_HZ}
-    ...  ${SPACE*4}[0, 1] -> cpu@[3, 7]
+    ...      [0, 1] -> cpu@[3, 7]
     ...
     ...  ram: Memory.MappedMemory @ sysbus 0x00000000
     ...  ${SPACE*4}size: 0x02000000
