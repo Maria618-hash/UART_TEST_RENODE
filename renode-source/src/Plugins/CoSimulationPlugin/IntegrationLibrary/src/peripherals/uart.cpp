@@ -86,6 +86,20 @@ void UART::writeToBus(int width, uint64_t addr, uint64_t value) {
     if(addr == 0xC) {  
         lineControl = value;  
     }  
+
+    // If DLAB is enabled, writes to the TX register address and the next word
+    // are treated as divisor latch low/high (16550-style).
+    if(autoPrescalerFromDivisorLatch && (lineControl & 0x80)) {
+        if(addr == tx_reg_addr) {
+            divisorLatchLow = static_cast<uint8_t>(value);
+        } else if(addr == (tx_reg_addr + 4)) {
+            divisorLatchHigh = static_cast<uint8_t>(value);
+        }
+
+        const uint32_t divisor = static_cast<uint32_t>(divisorLatchLow) | (static_cast<uint32_t>(divisorLatchHigh) << 8);
+        // Avoid division by zero / invalid bit timing. Use divisor=1 as a safe fallback.
+        prescaler = (divisor == 0 ? 1u : divisor) * (oversampling == 0 ? 16u : oversampling);
+    }
     
     if(addr == tx_reg_addr && !(lineControl & 0x80)) {
         // We are waiting for low state on txd line, which indicates beginning of a transmission.

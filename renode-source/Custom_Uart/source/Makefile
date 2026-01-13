@@ -1,10 +1,11 @@
 # ============================
 # Paths
 # ============================
-INTEG_DIR        := /home/ammara/renode-source/src/Plugins/CoSimulationPlugin/IntegrationLibrary
+REPO_ROOT        := $(realpath ../..)
+INTEG_DIR        := $(realpath ../../src/Plugins/CoSimulationPlugin/IntegrationLibrary)
 SOCKET_DIR       := $(INTEG_DIR)/libs/socket-cpp/Socket
-RENODE_INCLUDE   := $(INTEG_DIR)/../../../../Infrastructure/src/Emulator/Cores/renode/include
-SRC_DIR          := /home/ammara/renode-source/Custom_Uart/source
+RENODE_INCLUDE   := $(realpath ../../src/Infrastructure/src/Emulator/Cores/renode/include)
+SRC_DIR          := $(CURDIR)
 
 VERILATOR_SRC    := uart_top.v
 WRAPPER          := uart_wrapper.cpp
@@ -61,7 +62,14 @@ verilate:
 # ----------------------------
 # Build shared library (.so)
 # ----------------------------
+# If Verilator is not available, but the generated objects already exist in $(OBJ_DIR),
+# allow rebuilding just the integration library objects and relinking the .so.
+VERILATED_OBJS   := $(wildcard $(OBJ_DIR)/*.o)
+ifeq ($(strip $(VERILATED_OBJS)),)
 libVuart.so: verilate $(INTEG_OBJS)
+else
+libVuart.so: $(INTEG_OBJS)
+endif
 	cd $(SRC_DIR) && \
 	$(CXX) -shared -fPIC -o libVuart.so \
 		$(OBJ_DIR)/*.o \

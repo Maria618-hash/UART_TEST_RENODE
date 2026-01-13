@@ -17,7 +17,7 @@ ram2: Memory.MappedMemory @ sysbus 0x04000000
     
 uart1_ST1: CoSimulated.CoSimulatedUART @ sysbus <0x80002000, +0x100> 
     frequency: 80000000
-    SimulationFilePathLinux: "/home/ammara/renode-source/Custom_Uart/source/libVuart.so"  
+    # Set SimulationFilePath(Linux/Windows/MacOS) in a .resc or Robot test to keep this file portable.
     
    
 
