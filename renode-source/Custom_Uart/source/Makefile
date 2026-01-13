@@ -23,6 +23,17 @@ CXXFLAGS := -fPIC -DVM_TRACE \
 
 LDFLAGS  := -shared -lz
 
+# Many users run Renode on older distros/VMs with an older libstdc++ runtime.
+# To avoid runtime errors like:
+#   "libstdc++.so.6: version `GLIBCXX_3.4.xx' not found"
+# we statically link libstdc++/libgcc into libVuart.so by default.
+STATIC_LIBSTDCXX ?= 1
+ifeq ($(STATIC_LIBSTDCXX),1)
+LINK_EXTRA_FLAGS := -static-libstdc++ -static-libgcc
+else
+LINK_EXTRA_FLAGS :=
+endif
+
 # ============================
 # Integration Library Sources
 # ============================
@@ -74,6 +85,7 @@ endif
 	$(CXX) -shared -fPIC -o libVuart.so \
 		$(OBJ_DIR)/*.o \
 		$(abspath $(INTEG_OBJS)) \
+		$(LINK_EXTRA_FLAGS) \
 		-lz
 
 # ----------------------------
