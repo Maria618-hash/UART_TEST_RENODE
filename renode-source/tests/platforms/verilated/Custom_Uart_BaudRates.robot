@@ -79,9 +79,13 @@ Assert Bytes Received
     ${m}=    Wait For Bytes On Uart  ${hex}  matchStart=false  timeout=2
     # Depending on Renode version, the keyword can return either:
     # - a match object with .Content
+    # - a dict with 'content' key
     # - the matched bytes directly
+    ${is_dict}=      Evaluate  isinstance($m, dict)
     ${has_content}=  Evaluate  hasattr($m, "Content")
-    IF  ${has_content}
+    IF  ${is_dict}
+        ${got}=  Set Variable  ${m['content']}
+    ELSE IF  ${has_content}
         ${got}=  Set Variable  ${m.Content}
     ELSE
         ${got}=  Set Variable  ${m}
