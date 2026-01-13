@@ -475,6 +475,12 @@ class RobotTestSuite(object):
 
         assert self.renode_pid != -1, "Renode PID has to be set before trying to acces the port file"
 
+        # Some Renode distributions do not create the `robot_port` file when a fixed port is provided.
+        # In such case we can just use the configured port directly and skip the port-file handshake.
+        if remote_server_port and remote_server_port != 0:
+            self.remote_server_port = int(remote_server_port)
+            return process
+
         timeout_s = 180
         countdown = float(timeout_s)
         temp_dir = tempfile.gettempdir()
