@@ -85,9 +85,6 @@ verilate:
 # If Verilator is not available, but the generated objects already exist in $(OBJ_DIR),
 # allow rebuilding just the integration library objects and relinking the .so.
 VERILATED_OBJS   := $(wildcard $(OBJ_DIR)/*.o)
-# Avoid linking in Verilator's threaded runtime to improve portability (it pulls
-# in pthread symbols versioned as GLIBC_2.34+ on newer glibc).
-VERILATED_OBJS_NO_THREADS := $(filter-out $(OBJ_DIR)/verilated_threads.o,$(VERILATED_OBJS))
 ifeq ($(strip $(VERILATED_OBJS)),)
 libVuart.so: verilate $(INTEG_OBJS) $(COMPAT_OBJ)
 else
@@ -95,7 +92,7 @@ libVuart.so: $(INTEG_OBJS) $(COMPAT_OBJ)
 endif
 	cd $(SRC_DIR) && \
 	$(CXX) -shared -fPIC -o libVuart.so \
-		$(VERILATED_OBJS_NO_THREADS) \
+		$(VERILATED_OBJS) \
 		$(abspath $(INTEG_OBJS)) \
 		$(abspath $(COMPAT_OBJ)) \
 		$(LINK_EXTRA_FLAGS) \
