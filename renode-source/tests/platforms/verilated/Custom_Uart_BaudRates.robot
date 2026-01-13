@@ -17,29 +17,27 @@ ${THR_OFFSET}        0x0
 ${UART_CLOCK_HZ}     80000000
 ${OVERSAMPLING}      16
 
-${PLATFORM}=     SEPARATOR=${\n}
-...  """
-...  cpu: CPU.RiscV32 @ sysbus
-...  ${SPACE*4}cpuType: "rv32imc_zicsr_zifencei"
-...  ${SPACE*4}privilegedArchitecture: PrivilegedArchitecture.Priv1_10
-...  ${SPACE*4}timeProvider: clint
-...
-...  clint: IRQControllers.CoreLevelInterruptor @ sysbus 0x02000000
-...  ${SPACE*4}frequency: ${UART_CLOCK_HZ}
-...  ${SPACE*4}[0, 1] -> cpu@[3, 7]
-...
-...  ram: Memory.MappedMemory @ sysbus 0x00000000
-...  ${SPACE*4}size: 0x02000000
-...
-...  uart: CoSimulated.CoSimulatedUART @ sysbus <${UART_BASE}, +0x100>
-...  ${SPACE*4}frequency: ${UART_CLOCK_HZ}
-...  """
-
 *** Keywords ***
 Create Custom UART Machine
     Execute Command    using sysbus
     Execute Command    mach create
-    Execute Command    machine LoadPlatformDescriptionFromString ${PLATFORM}
+    ${platform}=  Catenate  SEPARATOR=\n
+    ...  cpu: CPU.RiscV32 @ sysbus
+    ...  ${SPACE*4}cpuType: "rv32imc_zicsr_zifencei"
+    ...  ${SPACE*4}privilegedArchitecture: PrivilegedArchitecture.Priv1_10
+    ...  ${SPACE*4}timeProvider: clint
+    ...
+    ...  clint: IRQControllers.CoreLevelInterruptor @ sysbus 0x02000000
+    ...  ${SPACE*4}frequency: ${UART_CLOCK_HZ}
+    ...  ${SPACE*4}[0, 1] -> cpu@[3, 7]
+    ...
+    ...  ram: Memory.MappedMemory @ sysbus 0x00000000
+    ...  ${SPACE*4}size: 0x02000000
+    ...
+    ...  uart: CoSimulated.CoSimulatedUART @ sysbus <${UART_BASE}, +0x100>
+    ...  ${SPACE*4}frequency: ${UART_CLOCK_HZ}
+
+    Execute Command    machine LoadPlatformDescriptionFromString ${platform}
     Execute Command    ${UART} SimulationFilePathLinux @${CURDIR}/../../../Custom_Uart/source/libVuart.so
     # Use binary mode so we can verify exact byte sequences (not line-based text).
     Create Terminal Tester  ${UART}  binaryMode=true
