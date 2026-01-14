@@ -646,7 +646,9 @@ class RobotTestSuite(object):
 
         result = None
         def get_result():
-            return result if result is not None else TestResult(True, None)
+            # When no tests are selected (e.g. fixture filter doesn't match),
+            # return an empty log list to avoid crashing the test engine.
+            return result if result is not None else TestResult(True, [])
 
         start_timestamp = monotonic()
 
