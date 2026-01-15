@@ -170,10 +170,12 @@ int main() {
     uart_init();
 
     uart_puts("UART BAUD VERIFY (waveform-based)\n");
-    uart_puts("Pattern per baud: A5 5A 00 FF 55 AA\n");
+    uart_puts("TX pattern per baud: 0x55 0xAA (repeated)\n");
 
     static const uint32_t bauds[] = {9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600};
-    static const uint8_t pattern[] = {0xA5, 0x5A, 0x00, 0xFF, 0x55, 0xAA};
+    // Use a transition-rich pattern so measuring bit time is easy in GTKWave.
+    // Avoid 0x00 to keep the Renode console readable.
+    static const uint8_t pattern[] = {0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA};
 
     for(size_t i = 0; i < sizeof(bauds)/sizeof(bauds[0]); i++) {
         const uint32_t baud = bauds[i];
@@ -184,12 +186,7 @@ int main() {
         uart_put_u32(baud);
         uart_puts(" DIV=");
         uart_put_u32(div);
-        uart_puts(" DATA=");
-        for(size_t j = 0; j < sizeof(pattern); j++) {
-            uart_put_hex8(pattern[j]);
-            uart_putc(' ');
-        }
-        uart_putc('\n');
+        uart_puts(" TX=55aa...\n");
 
         for(size_t j = 0; j < sizeof(pattern); j++) {
             uart_putc((char)pattern[j]);
@@ -197,9 +194,13 @@ int main() {
         uart_putc('\n');
 
         // Add some idle time between baud segments to make waveform measurement easy.
-        delay_cycles(200000);
+        delay_cycles(800000);
     }
 
-    // Loop forever after the message is sent
-    while (1);
+    uart_puts("\nDONE\n");
+    // Stop the CPU in Renode after finishing.
+    __asm__ volatile("ebreak");
+    while (1) {
+        __asm__ volatile("nop");
+    }
 }
