@@ -125,7 +125,8 @@ RenendeAgent* Init() {
     Verilated::traceEverOn(true);  
     tfp = new VerilatedFstC;  
     top->trace(tfp, 1);  
-    tfp->open("/home/ammara/renode-source/Custom_UART/source/simx.fst");  
+    // Write the waveform in the current working directory for portability.
+    tfp->open("simx.fst");  
 #endif  
       
     // Initialize UART peripheral and connect to Renode  
