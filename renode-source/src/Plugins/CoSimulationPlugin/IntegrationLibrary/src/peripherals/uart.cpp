@@ -9,6 +9,14 @@
 #include <iostream>
 #include <ostream> 
 
+namespace {
+constexpr uint8_t kLcrDlabMask = 0x80;
+constexpr uint32_t kDllOffset = 0x0;
+constexpr uint32_t kDlhOffset = 0x4;
+constexpr uint32_t kLcrOffset = 0xC;
+constexpr uint32_t kBaudOversample = 16;
+} // namespace
+
 UART::UART(uint8_t* txd, uint8_t* rxd, uint32_t prescaler, uint32_t tx_reg_addr, uint8_t* irq) : RenodeAgent() {
     this->txd = txd;
     this->rxd = rxd;
@@ -17,6 +25,12 @@ UART::UART(uint8_t* txd, uint8_t* rxd, uint32_t prescaler, uint32_t tx_reg_addr,
     this->prescaler = prescaler;
     this->tx_reg_addr = tx_reg_addr;
     this->prev_irq = 0;
+    uint32_t initialDivisor = (prescaler + (kBaudOversample / 2)) / kBaudOversample;
+    if(initialDivisor == 0) {
+        initialDivisor = 1;
+    }
+    divisorLatchLow = static_cast<uint8_t>(initialDivisor & 0xFF);
+    divisorLatchHigh = static_cast<uint8_t>((initialDivisor >> 8) & 0xFF);
 
     // Set rxd line idle state
     *this->rxd = 1;
@@ -71,6 +85,17 @@ void UART::Rxd(uint8_t value) {
     tick(true, prescaler);        // Stop bit
 }
 
+void UART::updatePrescalerFromDivisor()
+{
+    uint16_t divisor = static_cast<uint16_t>(divisorLatchLow) |
+        static_cast<uint16_t>(divisorLatchHigh << 8);
+    if(divisor == 0) {
+        return;
+    }
+    // Standard 16550 UARTs use 16x oversampling.
+    prescaler = static_cast<uint32_t>(divisor) * kBaudOversample;
+}
+
 void UART::handleCustomRequestType(Protocol* message) {
     switch(message->actionId) {
         case rxdRequest:
@@ -83,11 +108,22 @@ void UART::writeToBus(int width, uint64_t addr, uint64_t value) {
     RenodeAgent::writeToBus(width, addr, value);
     
     // Track Line Control Register writes 
-    if(addr == 0xC) {  
-        lineControl = value;  
+    if(addr == kLcrOffset) {  
+        lineControl = static_cast<uint8_t>(value);  
     }  
     
-    if(addr == tx_reg_addr && !(lineControl & 0x80)) {
+    bool dlab = (lineControl & kLcrDlabMask) != 0;
+    if(dlab) {
+        if(addr == kDllOffset) {
+            divisorLatchLow = static_cast<uint8_t>(value);
+            updatePrescalerFromDivisor();
+        } else if(addr == kDlhOffset) {
+            divisorLatchHigh = static_cast<uint8_t>(value);
+            updatePrescalerFromDivisor();
+        }
+    }
+
+    if(addr == tx_reg_addr && !dlab) {
         // We are waiting for low state on txd line, which indicates beginning of a transmission.
         // Invalid data can be read otherwise.
        // timeoutTick(txd, 0);

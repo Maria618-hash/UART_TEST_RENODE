@@ -27,10 +27,13 @@ struct UART : RenodeAgent
     uint32_t tx_reg_addr;
     uint8_t prev_irq;
     uint8_t lineControl = 0;     // Track LCR value
+    uint8_t divisorLatchLow = 0;
+    uint8_t divisorLatchHigh = 0;
 
     protected:
     void writeToBus(int width, uint64_t addr, uint64_t value) override;
     void handleCustomRequestType(Protocol* message) override;
     virtual void Txd();
     virtual void Rxd(uint8_t value);
+    void updatePrescalerFromDivisor();
 };
