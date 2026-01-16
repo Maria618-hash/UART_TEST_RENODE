@@ -184,7 +184,9 @@ int main() {
         const uint16_t div = uart_divisor_for_baud(baud);
         uart_set_divisor(div);
 
-        uart_puts("\nBAUD=");
+        uart_puts("\nSEG=");
+        uart_put_u32((uint32_t)i);
+        uart_puts(" BAUD=");
         uart_put_u32(baud);
         uart_puts(" DIV=");
         uart_put_u32(div);
@@ -196,7 +198,8 @@ int main() {
         uart_putc('\n');
 
         // Add some idle time between baud segments to make waveform measurement easy.
-        delay_cycles(800000);
+        // Keep this modest so the next baud segment appears quickly in the console.
+        delay_cycles(50000);
     }
 
     uart_puts("\nDONE\n");
