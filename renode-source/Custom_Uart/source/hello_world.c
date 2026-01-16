@@ -170,12 +170,14 @@ int main() {
     uart_init();
 
     uart_puts("UART BAUD VERIFY (waveform-based)\n");
-    uart_puts("TX pattern per baud: 0x55 0xAA (repeated)\n");
+    // Use printable bytes so the Renode terminal stays readable.
+    // 'U' = 0x55 (01010101), 'Z' = 0x5A (01011010) - both transition-rich.
+    uart_puts("TX pattern per baud: 0x55 0x5A (\"UZ\" repeated)\n");
 
     static const uint32_t bauds[] = {9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600};
     // Use a transition-rich pattern so measuring bit time is easy in GTKWave.
     // Avoid 0x00 to keep the Renode console readable.
-    static const uint8_t pattern[] = {0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA};
+    static const uint8_t pattern[] = {'U','Z','U','Z','U','Z','U','Z'};
 
     for(size_t i = 0; i < sizeof(bauds)/sizeof(bauds[0]); i++) {
         const uint32_t baud = bauds[i];
@@ -186,7 +188,7 @@ int main() {
         uart_put_u32(baud);
         uart_puts(" DIV=");
         uart_put_u32(div);
-        uart_puts(" TX=55aa...\n");
+        uart_puts(" TX=UZUZ...\n");
 
         for(size_t j = 0; j < sizeof(pattern); j++) {
             uart_putc((char)pattern[j]);
