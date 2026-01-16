@@ -8,6 +8,7 @@
 #include <bitset>
 #include <iostream>
 #include <ostream> 
+#include <algorithm>
 
 UART::UART(uint8_t* txd, uint8_t* rxd, uint32_t prescaler, uint32_t tx_reg_addr, uint8_t* irq) : RenodeAgent() {
     this->txd = txd;
@@ -39,8 +40,20 @@ void UART::eval() {
 }
 
 void UART::Txd() {  
-        timeoutTick(txd, 0);  // Wait for start bit  
-        tick(true, prescaler + prescaler/2);
+    // Wait for start bit. Some UART implementations assert start bit only on a baud clock edge,
+    // so the wait time must scale with the configured baud (prescaler).
+    //
+    // NOTE: timeoutTick may throw (const char*) from the bus implementation; do NOT let it
+    // escape into Renode as it will abort the process.
+    const int startBitTimeout = std::max<int>(DEFAULT_TIMEOUT, static_cast<int>(prescaler * 2u + 16u));
+    try {
+        timeoutTick(txd, 0, startBitTimeout);
+    } catch(const char* msg) {
+        log(LOG_LEVEL_WARNING, "UART TXD start-bit timeout (%d ticks): %s", startBitTimeout, msg);
+        return;
+    }
+
+    tick(true, prescaler + prescaler/2);
       
     uint8_t data = 0;  
     for(int i = 0; i < 8; i++) {  
@@ -86,11 +99,28 @@ void UART::writeToBus(int width, uint64_t addr, uint64_t value) {
     if(addr == 0xC) {  
         lineControl = value;  
     }  
+
+    // If DLAB is enabled, writes to the TX register address and the next word
+    // are treated as divisor latch low/high (16550-style).
+    if(autoPrescalerFromDivisorLatch && (lineControl & 0x80)) {
+        if(addr == tx_reg_addr) {
+            divisorLatchLow = static_cast<uint8_t>(value);
+        } else if(addr == (tx_reg_addr + 4)) {
+            divisorLatchHigh = static_cast<uint8_t>(value);
+        }
+
+        const uint32_t divisor = static_cast<uint32_t>(divisorLatchLow) | (static_cast<uint32_t>(divisorLatchHigh) << 8);
+        // Avoid division by zero / invalid bit timing. Use divisor=1 as a safe fallback.
+        prescaler = (divisor == 0 ? 1u : divisor) * (oversampling == 0 ? 16u : oversampling);
+    }
     
     if(addr == tx_reg_addr && !(lineControl & 0x80)) {
-        // We are waiting for low state on txd line, which indicates beginning of a transmission.
-        // Invalid data can be read otherwise.
-       // timeoutTick(txd, 0);
-        Txd();
+        // Decode TXD after a write to the TX register (DLAB=0).
+        // Any unhandled exception here would crash Renode, so keep this best-effort.
+        try {
+            Txd();
+        } catch(const char* msg) {
+            log(LOG_LEVEL_WARNING, "UART TXD decode failed: %s", msg);
+        }
     }
 }

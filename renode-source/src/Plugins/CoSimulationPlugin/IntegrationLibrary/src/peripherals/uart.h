@@ -27,6 +27,13 @@ struct UART : RenodeAgent
     uint32_t tx_reg_addr;
     uint8_t prev_irq;
     uint8_t lineControl = 0;     // Track LCR value
+    // Optional support for UARTs using 16550-style divisor latch (DLAB).
+    // When enabled, prescaler will be updated on divisor latch writes:
+    // prescaler = (DLL | (DLH << 8)) * oversampling.
+    bool autoPrescalerFromDivisorLatch = true;
+    uint32_t oversampling = 16;
+    uint8_t divisorLatchLow = 1;
+    uint8_t divisorLatchHigh = 0;
 
     protected:
     void writeToBus(int width, uint64_t addr, uint64_t value) override;

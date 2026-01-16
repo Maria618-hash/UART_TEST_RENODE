@@ -47,44 +47,68 @@
 
 // Line Status Register (LSR) bits
 #define LSR_THRE (1 << 5) // Transmitter Holding Register Empty
+#define LSR_TEMT (1 << 6) // Transmitter Empty (THR and shift register)
 
-// Baud Rate Divisor (DLV = 43, for 80MHz -> 115200 bps)
-#define BAUD_DLL 0x2B // 43 decimal
-#define BAUD_DLH 0x00
+// UART reference clock and oversampling factor (16550-style).
+// baud ~= UART_CLOCK_HZ / (OVERSAMPLING * divisor)
+#define UART_CLOCK_HZ 80000000u
+#define OVERSAMPLING  16u
 
 
 // =====================================================================
 // UART Driver Functions
 // =====================================================================
 
-/**
- * @brief Initializes the UART for 80MHz clock, 115200 baud, 8N1 framing, and FIFOs enabled.
- */
-void uart_init() {
-    // 1. Disable interrupts initially
-    UART_IER = 0x00; 
+static void uart_set_divisor(uint16_t divisor)
+{
+    if(divisor == 0) {
+        divisor = 1;
+    }
 
-    // 2. Enable Divisor Latch Access (DLAB = 1) in LCR
-    UART_LCR = LCR_DLAB; 
-    
-    volatile uint8_t dummy = UART_LCR;  
-    (void)dummy;  
-    
-    // 3. Write the calculated Divisor Latch Value (DLV = 43)
-    UART_DLL = BAUD_DLL; 
-    UART_DLH = BAUD_DLH; 
+    // Disable interrupts while reprogramming.
+    UART_IER = 0x00;
 
-    // 4. Set character framing: 8 data bits, No parity, 1 stop bit (8N1). 
-    // This also disables DLAB (DLAB = 0)
-    UART_LCR = 0x03; 
+    // Enable Divisor Latch Access.
+    UART_LCR = LCR_DLAB;
+    (void)UART_LCR; // dummy read
 
-    // 5. Enable and clear FIFOs, set trigger level (0x07: enable, TX/RX reset)
-    UART_FCR = 0x07; 
-    
-    // 6. Neutralize Modem Control Register (MCR): Set to 0x00.
-    // This avoids asserting DTR/RTS/OUT2, which can cause issues in some emulations
-    // that rely on these signals being properly connected or modeled.
+    UART_DLL = (uint8_t)(divisor & 0xFF);
+    UART_DLH = (uint8_t)((divisor >> 8) & 0xFF);
+
+    // 8N1 and disable DLAB.
+    UART_LCR = 0x03;
+}
+
+static uint16_t uart_divisor_for_baud(uint32_t baud)
+{
+    // divisor = round(UART_CLOCK_HZ / (OVERSAMPLING * baud))
+    const uint32_t den = OVERSAMPLING * baud;
+    if(den == 0) {
+        return 1;
+    }
+    uint32_t div = (UART_CLOCK_HZ + den/2u) / den;
+    if(div == 0) {
+        div = 1;
+    }
+    if(div > 0xFFFFu) {
+        div = 0xFFFFu;
+    }
+    return (uint16_t)div;
+}
+
+static void uart_set_baud(uint32_t baud)
+{
+    uart_set_divisor(uart_divisor_for_baud(baud));
+}
+
+static void uart_init()
+{
+    // Enable and clear FIFOs, set trigger level (0x07: enable, TX/RX reset)
+    UART_FCR = 0x07;
+    // Neutralize Modem Control Register (MCR)
     UART_MCR = 0x00;
+    // Default baud for startup: 115200
+    //uart_set_baud(115200);
 }
 
 /**
@@ -100,6 +124,51 @@ void uart_putc(char c) {
     UART_THR = c;
 }
 
+static void uart_wait_tx_empty(void)
+{
+    while(!(UART_LSR & LSR_TEMT)) {
+        __asm__ volatile("nop");
+    }
+}
+
+static void uart_puts(const char* s)
+{
+    while(*s) {
+        uart_putc(*s++);
+    }
+}
+
+static void uart_put_hex8(uint8_t v)
+{
+    const char* hex = "0123456789ABCDEF";
+    uart_putc(hex[(v >> 4) & 0xF]);
+    uart_putc(hex[v & 0xF]);
+}
+
+static void uart_put_u32(uint32_t v)
+{
+    char buf[10];
+    size_t n = 0;
+    if(v == 0) {
+        uart_putc('0');
+        return;
+    }
+    while(v && n < sizeof(buf)) {
+        buf[n++] = (char)('0' + (v % 10u));
+        v /= 10u;
+    }
+    while(n) {
+        uart_putc(buf[--n]);
+    }
+}
+
+static void delay_cycles(volatile uint32_t loops)
+{
+    while(loops--) {
+        __asm__ volatile("nop");
+    }
+}
+
 // =====================================================================
 // Main Application
 // =====================================================================
@@ -108,14 +177,46 @@ int main() {
     // Initialize the UART hardware
     uart_init();
 
-    const char *msg ="Hello UART1-STRIVE-I from Renode!\n";
+    uart_puts("UART BAUD VERIFY (waveform-based)\n");
+    // Use printable bytes so the Renode terminal stays readable.
+    // 'U' = 0x55 (01010101), 'Z' = 0x5A (01011010) - both transition-rich.
+    uart_puts("TX pattern per baud: 'U''Z' (0x55 0x5A)\n");
 
-    // Transmit the string character by character
-    const char *ptr = msg;
-    while (*ptr) {
-        uart_putc(*ptr++);
+    static const uint32_t bauds[] = {9600,19200, 38400, 57600, 115200, 230400, 460800, 921600};
+    // Use a transition-rich pattern so measuring bit time is easy in GTKWave.
+    // Avoid 0x00 to keep the Renode console readable.
+    static const uint8_t pattern[] = {'U','Z'};
+
+    for(size_t i = 0; i < sizeof(bauds)/sizeof(bauds[0]); i++) {
+        const uint32_t baud = bauds[i];
+        const uint16_t div = uart_divisor_for_baud(baud);
+        uart_set_divisor(div);
+
+        uart_puts("\nSEG=");
+        uart_put_u32((uint32_t)i);
+        uart_puts(" BAUD=");
+        uart_put_u32(baud);
+        uart_puts(" DIV=");
+        uart_put_u32(div);
+        uart_puts(" TX=UZ\n");
+
+        for(size_t j = 0; j < sizeof(pattern); j++) {
+            uart_putc((char)pattern[j]);
+        }
+        uart_putc('\n');
+
+        // Make sure TX has finished before changing baud.
+        uart_wait_tx_empty();
+
+        // Add some idle time between baud segments to make waveform measurement easy.
+        // Scale with divisor so low baud still produces a visible idle gap.
+        delay_cycles((uint32_t)div * 200u);
     }
 
-    // Loop forever after the message is sent
-    while (1);
+    uart_puts("\nDONE\n");
+    // Stop the CPU in Renode after finishing.
+    __asm__ volatile("ebreak");
+    while (1) {
+        __asm__ volatile("nop");
+    }
 }

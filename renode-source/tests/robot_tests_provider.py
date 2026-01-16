@@ -475,6 +475,32 @@ class RobotTestSuite(object):
 
         assert self.renode_pid != -1, "Renode PID has to be set before trying to acces the port file"
 
+        # Some Renode distributions do not create the `robot_port` file when a fixed port is provided.
+        # In such case we can just use the configured port directly and skip the port-file handshake.
+        if remote_server_port and remote_server_port != 0:
+            self.remote_server_port = int(remote_server_port)
+            return process
+
+        def try_parse_port_from_output():
+            # Some Renode packages don't create /tmp/renode-<pid>/robot_port but do print
+            # the chosen port to stdout/stderr, e.g.:
+            # "Robot Framework remote server is listening on port 49152"
+            port_re = re.compile(r"Robot Framework remote server is listening on port\s+(\d+)")
+
+            for p in (stdout_path, stderr_path):
+                if not p or not os.path.isfile(p):
+                    continue
+                try:
+                    with open(p, 'rt', errors='ignore') as f:
+                        data = f.read()
+                    m = port_re.search(data)
+                    if m:
+                        return int(m.group(1))
+                except Exception:
+                    # Best-effort only; fall back to the port-file mechanism below.
+                    pass
+            return None
+
         timeout_s = 180
         countdown = float(timeout_s)
         temp_dir = tempfile.gettempdir()
@@ -488,6 +514,10 @@ class RobotTestSuite(object):
                     self.remote_server_port = int(port_num)
                 break
             except (FileNotFoundError, PermissionError):
+                parsed = try_parse_port_from_output()
+                if parsed is not None:
+                    self.remote_server_port = parsed
+                    break
                 sleep(0.5)
                 countdown -= 0.5
         else:
@@ -616,7 +646,9 @@ class RobotTestSuite(object):
 
         result = None
         def get_result():
-            return result if result is not None else TestResult(True, None)
+            # When no tests are selected (e.g. fixture filter doesn't match),
+            # return an empty log list to avoid crashing the test engine.
+            return result if result is not None else TestResult(True, [])
 
         start_timestamp = monotonic()
 

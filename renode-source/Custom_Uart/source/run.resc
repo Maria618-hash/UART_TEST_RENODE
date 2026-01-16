@@ -3,9 +3,10 @@ using sysbus
 mach create "Custom_Uart"
 
 # Load the platform description (the .repl file)
-machine LoadPlatformDescription @/home/ammara/renode-source/Custom_Uart/source/custom_uart.repl
+machine LoadPlatformDescription @custom_uart.repl
+uart1_ST1 SimulationFilePathLinux @libVuart.so
 
-sysbus LoadELF @/home/ammara/renode-source/Custom_Uart/source/hello.elf
+sysbus LoadELF @hello.elf
  
 sysbus LogPeripheralAccess uart1_ST1
 
