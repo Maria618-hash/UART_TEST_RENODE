@@ -108,7 +108,7 @@ static void uart_init()
     // Neutralize Modem Control Register (MCR)
     UART_MCR = 0x00;
     // Default baud for startup: 115200
-    uart_set_baud(115200);
+    //uart_set_baud(115200);
 }
 
 /**
@@ -182,7 +182,7 @@ int main() {
     // 'U' = 0x55 (01010101), 'Z' = 0x5A (01011010) - both transition-rich.
     uart_puts("TX pattern per baud: 'U''Z' (0x55 0x5A)\n");
 
-    static const uint32_t bauds[] = {9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600};
+    static const uint32_t bauds[] = {9600,19200, 38400, 57600, 115200, 230400, 460800, 921600};
     // Use a transition-rich pattern so measuring bit time is easy in GTKWave.
     // Avoid 0x00 to keep the Renode console readable.
     static const uint8_t pattern[] = {'U','Z'};
