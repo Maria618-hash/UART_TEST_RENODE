@@ -99,8 +99,8 @@ void SPI::handleCustomRequestType(Protocol* /*message*/)
 uint8_t SPI::readByte(long offset)
 {
     if(offset == (long)data_reg_addr) {
-        // Only return data when CS is active (low) and loopback enabled
-        if(loopbackEnabled && cs_spi && (*cs_spi == 0)) {
+        // In master loopback mode there is no external slave/CS requirement.
+        if(loopbackEnabled) {
             this->log(1, "SPI: Loopback returning 0x%02X", loopbackData);
             return loopbackData;
         }
@@ -118,8 +118,8 @@ void SPI::writeByte(long offset, uint32_t value)
     }
 
     if(offset == (long)data_reg_addr) {
-        // Only store data when CS is active (low) and loopback enabled
-        if(loopbackEnabled && cs_spi && (*cs_spi == 0)) {
+        // In master loopback mode there is no external slave/CS requirement.
+        if(loopbackEnabled) {
             loopbackData = (uint8_t)value;
             this->log(1, "SPI: Loopback storing 0x%02X", loopbackData);
         }
