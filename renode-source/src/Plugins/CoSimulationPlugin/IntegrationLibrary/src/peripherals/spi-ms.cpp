@@ -151,13 +151,14 @@ void SPI::writeToBus(int width, uint64_t addr, uint64_t value)
 void SPI::readFromBus(int width, uint64_t addr)
 {
     // width is in bytes: 1 or 4
-    RenodeAgent::readFromBus(width, addr);
-
-    if(addr == data_reg_addr) {
+    if(addr == data_reg_addr && loopbackEnabled) {
+        // Bypass the underlying bus to avoid mixing in status bits.
         uint8_t byteValue = readByte((long)addr);
-        this->returnValue = (width == 4) ? (uint32_t)byteValue : byteValue;
-    } else {
-        this->returnValue = 0;
+        uint64_t readValue = (width == 4) ? (uint32_t)byteValue : byteValue;
+        communicationChannel->sendMain(Protocol(readRequest, addr, readValue));
+        return;
     }
+
+    RenodeAgent::readFromBus(width, addr);
 }
 
