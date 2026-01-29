@@ -1,0 +1,16 @@
+CROSS   = riscv64-unknown-elf
+CC      = $(CROSS)-gcc
+OBJCOPY = $(CROSS)-objcopy
+CFLAGS  = -march=rv32imac -mabi=ilp32 -O2 -ffreestanding -nostdlib -g
+LDFLAGS = -T link.ld -nostdlib -nostartfiles
+
+all: i2c-m.elf i2c-m.bin
+
+i2c-m.elf: startup.s i2c-m.c link.ld
+	$(CC) $(CFLAGS) startup.s i2c-m.c -o i2c-m.elf $(LDFLAGS)
+
+i2c-m.bin: i2c-m.elf
+	$(OBJCOPY) -O binary i2c-m.elf i2c-m.bin
+
+clean:
+	rm -f i2c-m.elf i2c-m.bin
