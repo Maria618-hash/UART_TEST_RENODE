@@ -1,0 +1,12 @@
+using sysbus
+mach create "Custom_I2C"
+
+machine LoadPlatformDescription @/home/ammara/renode-source/Custom_I2C/source/i2c.repl
+
+sysbus LoadELF @/home/ammara/renode-source/Custom_I2C/source/i2c-m.elf
+
+sysbus LogPeripheralAccess i2c_master true
+
+machine StartGdbServer 3333
+
+start
